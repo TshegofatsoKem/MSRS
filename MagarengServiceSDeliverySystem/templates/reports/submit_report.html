@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Report an Issue | MSRS{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <!-- Left Side - Form -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #1a3a2a, #2d5a3d);">
+                <div class="d-flex align-items-center">
+                    <div style="width: 4px; height: 40px; background-color: #f0c040; border-radius: 2px; margin-right: 15px;"></div>
+                    <div>
+                        <h4 class="mb-0 text-white fw-bold"><i class="fas fa-plus-circle me-2"></i>Report a Service Issue</h4>
+                        <small style="color: #a8c8b4;">Bika bothata jwa tirelo | Rapporteer 'n dienslewering probleem</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Category -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-tag me-1" style="color: #2d5a3d;"></i>Issue Category *
+                        </label>
+                        <select name="category" class="form-select form-select-lg" required>
+                            <option value="">-- Select Category --</option>
+                            <option value="water" {% if selected_category == 'water' %}selected{% endif %}>💧 Water (Metsi / Water)</option>
+                            <option value="sewage" {% if selected_category == 'sewage' %}selected{% endif %}>⚠️ Sewage (Melapo / Riool)</option>
+                            <option value="roads" {% if selected_category == 'roads' %}selected{% endif %}>🛣️ Roads (Ditsela / Paaie)</option>
+                            <option value="electricity" {% if selected_category == 'electricity' %}selected{% endif %}>⚡ Electricity (Motlakase / Elektrisiteit)</option>
+                            <option value="vandalism" {% if selected_category == 'vandalism' %}selected{% endif %}>🔨 Vandalism (Tshenyo / Vandalisme)</option>
+                            <option value="other" {% if selected_category == 'other' %}selected{% endif %}>📋 Other (Tse dingwe / Ander)</option>
+                        </select>
+                    </div>
+
+                    <!-- Location and Ward -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-map-marker-alt me-1" style="color: #2d5a3d;"></i>Location / Address *
+                            </label>
+                            <input type="text" name="location" class="form-control form-control-lg"
+                                   placeholder="e.g. 12 Main Street, Warrenton" required>
+                            <div class="form-text">Be as specific as possible</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-map me-1" style="color: #2d5a3d;"></i>Area
+                            </label>
+                            <select name="ward" class="form-select form-select-lg">
+                                <option value="warrenton">Warrenton</option>
+                                <option value="ikhutseng">Ikhutseng</option>
+                                <option value="stasie">Stasie</option>
+                                <option value="warrenvale">Warrenvale</option>
+                                <option value="14_streams">14 Streams</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-align-left me-1" style="color: #2d5a3d;"></i>Description (Optional)
+                        </label>
+                        <textarea name="description" class="form-control" rows="3"
+                                  placeholder="Describe the issue in more detail..."></textarea>
+                    </div>
+
+                    <!-- Photo -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-camera me-1" style="color: #2d5a3d;"></i>Upload Photo (Optional)
+                        </label>
+                        <input type="file" name="photo" class="form-control" accept="image/*">
+                        <div class="form-text">A photo helps workers identify the issue faster</div>
+                    </div>
+
+                    <hr style="border-color: #f0c040;">
+
+                    <!-- Resident Info -->
+                    <h5 class="fw-bold mb-3" style="color: #1a3a2a;">
+                        <i class="fas fa-user me-2"></i>Your Contact Information
+                    </h5>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Full Name *</label>
+                            <input type="text" name="resident_name" class="form-control form-control-lg"
+                                   placeholder="Your full name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Phone Number *</label>
+                            <input type="tel" name="resident_phone" class="form-control form-control-lg"
+                                   placeholder="e.g. 083 123 4567" required>
+                            <div class="form-text">We will SMS you updates</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Email (Optional)</label>
+                        <input type="email" name="resident_email" class="form-control"
+                               placeholder="your@email.com">
+                    </div>
+
+                    <!-- Duplicate Warning -->
+                    <div class="alert border-0 mb-4" id="duplicateWarning" 
+                         style="display:none; background-color: #fff8e1; border-left: 4px solid #f0c040 !important;">
+                        <i class="fas fa-exclamation-triangle me-2" style="color: #f0c040;"></i>
+                        <strong>Note:</strong> There may already be a report for this area.
+                        <a href="/status/" class="fw-bold" style="color: #1a3a2a;">Check Status</a>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-lg fw-bold py-3"
+                                style="background-color: #1a3a2a; color: #f0c040; border: none;">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Report
+                        </button>
+                        <a href="/" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side - Info Panel -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-3" style="background-color: #1a3a2a; color: white;">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3" style="color: #f0c040;">
+                    <i class="fas fa-info-circle me-2"></i>What happens next?
+                </h5>
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <span class="badge rounded-pill" style="background-color: #f0c040; color: #1a3a2a; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">1</span>
+                    </div>
+                    <div>
+                        <strong>You receive a tracking number</strong>
+                        <p class="mb-0 small" style="color: #a8c8b4;">Sent via SMS to your phone</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <span class="badge rounded-pill" style="background-color: #f0c040; color: #1a3a2a; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">2</span>
+                    </div>
+                    <div>
+                        <strong>Report is assigned to a team</strong>
+                        <p class="mb-0 small" style="color: #a8c8b4;">Within 24 hours</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <span class="badge rounded-pill" style="background-color: #f0c040; color: #1a3a2a; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">3</span>
+                    </div>
+                    <div>
+                        <strong>Work begins</strong>
+                        <p class="mb-0 small" style="color: #a8c8b4;">You receive SMS updates</p>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <div class="me-3">
+                        <span class="badge rounded-pill" style="background-color: #f0c040; color: #1a3a2a; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">4</span>
+                    </div>
+                    <div>
+                        <strong>Issue resolved</strong>
+                        <p class="mb-0 small" style="color: #a8c8b4;">Final SMS confirmation sent</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm" style="border-left: 4px solid #f0c040 !important;">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-2" style="color: #1a3a2a;">
+                    <i class="fas fa-sms me-2"></i>No smartphone?
+                </h5>
+                <p class="small text-muted mb-2">Report by SMS to <strong>083 000 0000</strong></p>
+                <code class="d-block small mb-1">WATER 12 Main St Warrenton</code>
+                <code class="d-block small mb-1">SEWAGE 12 Main St Warrenton</code>
+                <code class="d-block small">STATUS MSRS-12345678</code>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const categorySelect = document.querySelector('select[name="category"]');
+    const locationInput = document.querySelector('input[name="location"]');
+    const duplicateWarning = document.getElementById('duplicateWarning');
+
+    function checkDuplicate() {
+        if (categorySelect.value && locationInput.value.length > 5) {
+            duplicateWarning.style.display = 'block';
+        } else {
+            duplicateWarning.style.display = 'none';
+        }
+    }
+
+    categorySelect.addEventListener('change', checkDuplicate);
+    locationInput.addEventListener('input', checkDuplicate);
+</script>
+{% endblock %}

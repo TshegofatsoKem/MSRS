@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Report | MSRS{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <!-- Back Button -->
+        <a href="/worker/" class="btn btn-outline-secondary mb-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+
+        <div class="card shadow">
+            <div class="card-header" style="background-color: #1a3a2a; color: white;">
+                <h4 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>Manage Report — {{ report.tracking_number }}
+                </h4>
+            </div>
+            <div class="card-body p-4">
+
+                <!-- Report Details -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5 class="fw-bold">Report Details</h5>
+                        <table class="table table-sm table-bordered">
+                            <tr>
+                                <th>Tracking #</th>
+                                <td>{{ report.tracking_number }}</td>
+                            </tr>
+                            <tr>
+                                <th>Category</th>
+                                <td>{{ report.get_category_display }}</td>
+                            </tr>
+                            <tr>
+                                <th>Location</th>
+                                <td>{{ report.location }}</td>
+                            </tr>
+                            <tr>
+                                <th>Ward</th>
+                                <td>{{ report.get_ward_display }}</td>
+                            </tr>
+                            <tr>
+                                <th>Date Submitted</th>
+                                <td>{{ report.date_submitted|date:"d M Y H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>{{ report.description|default:"No description provided" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="fw-bold">Resident Contact</h5>
+                        <table class="table table-sm table-bordered">
+                            <tr>
+                                <th>Name</th>
+                                <td>{{ report.resident_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Phone</th>
+                                <td>{{ report.resident_phone }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>{{ report.resident_email|default:"Not provided" }}</td>
+                            </tr>
+                        </table>
+
+                        {% if report.photo %}
+                        <h5 class="fw-bold mt-3">Photo</h5>
+                        <img src="{{ report.photo.url }}" class="img-fluid rounded" alt="Report photo">
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Update Form -->
+                <h5 class="fw-bold mb-3">Update Report</h5>
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="received" {% if report.status == 'received' %}selected{% endif %}>Received</option>
+                                <option value="assigned" {% if report.status == 'assigned' %}selected{% endif %}>Assigned</option>
+                                <option value="in_progress" {% if report.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="resolved" {% if report.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Priority</label>
+                            <select name="priority" class="form-select">
+                                <option value="high" {% if report.priority == 'high' %}selected{% endif %}>🔴 High</option>
+                                <option value="medium" {% if report.priority == 'medium' %}selected{% endif %}>🟡 Medium</option>
+                                <option value="low" {% if report.priority == 'low' %}selected{% endif %}>🟢 Low</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Assign To Team</label>
+                            <select name="assigned_to" class="form-select">
+                                <option value="">-- Not Assigned --</option>
+                                <option value="Water & Sanitation" {% if report.assigned_to == 'Water & Sanitation' %}selected{% endif %}>Water & Sanitation</option>
+                                <option value="Road Maintenance" {% if report.assigned_to == 'Road Maintenance' %}selected{% endif %}>Road Maintenance</option>
+                                <option value="Electricity Team" {% if report.assigned_to == 'Electricity Team' %}selected{% endif %}>Electricity Team</option>
+                                <option value="Sewage Team" {% if report.assigned_to == 'Sewage Team' %}selected{% endif %}>Sewage Team</option>
+                                <option value="General Maintenance" {% if report.assigned_to == 'General Maintenance' %}selected{% endif %}>General Maintenance</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Estimated Completion Date</label>
+                            <input type="date" name="estimated_completion" class="form-control"
+                                   value="{{ report.estimated_completion|date:'Y-m-d'|default:'' }}">
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label class="form-label fw-bold">Completion Notes</label>
+                            <textarea name="completion_notes" class="form-control" rows="3"
+                                      placeholder="Add notes about the work done...">{{ report.completion_notes }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                        <a href="/worker/" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

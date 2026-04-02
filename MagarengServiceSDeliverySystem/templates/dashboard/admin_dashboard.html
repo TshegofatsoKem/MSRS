@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard | MSRS{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">Admin Dashboard</h2>
+        <p class="text-muted mb-0">Magareng Service Request System — Analytics & Reporting</p>
+    </div>
+    <a href="/logout/" class="btn btn-outline-danger">
+        <i class="fas fa-sign-out-alt me-2"></i>Logout
+    </a>
+</div>
+
+<!-- KPI Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body" style="background-color: #1a3a2a; color: white; border-radius: 8px;">
+                <h2 class="fw-bold">{{ total_reports }}</h2>
+                <p class="mb-0">Total Reports</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body" style="background-color: #f0c040; border-radius: 8px;">
+                <h2 class="fw-bold" style="color: #1a3a2a;">{{ pending_count }}</h2>
+                <p class="mb-0" style="color: #1a3a2a;">Pending</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body bg-success text-white" style="border-radius: 8px;">
+                <h2 class="fw-bold">{{ resolved_count }}</h2>
+                <p class="mb-0">Resolved</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body bg-info text-white" style="border-radius: 8px;">
+                <h2 class="fw-bold">{{ resolution_rate }}%</h2>
+                <p class="mb-0">Resolution Rate</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <!-- Category Breakdown -->
+    <div class="col-md-6 mb-3">
+        <div class="card shadow-sm">
+            <div class="card-header" style="background-color: #1a3a2a; color: white;">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Reports by Category</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Breakdown -->
+    <div class="col-md-6 mb-3">
+        <div class="card shadow-sm">
+            <div class="card-header" style="background-color: #1a3a2a; color: white;">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Reports by Status</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ward Breakdown -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card shadow-sm">
+            <div class="card-header" style="background-color: #1a3a2a; color: white;">
+                <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Reports by Ward</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="wardChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Reports -->
+    <div class="col-md-6 mb-3">
+        <div class="card shadow-sm">
+            <div class="card-header" style="background-color: #1a3a2a; color: white;">
+                <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Reports</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Tracking #</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in recent_reports %}
+                        <tr>
+                            <td><small>{{ report.tracking_number }}</small></td>
+                            <td><small>{{ report.get_category_display }}</small></td>
+                            <td>
+                                {% if report.status == 'received' %}
+                                    <span class="badge bg-secondary">Received</span>
+                                {% elif report.status == 'assigned' %}
+                                    <span class="badge bg-primary">Assigned</span>
+                                {% elif report.status == 'in_progress' %}
+                                    <span class="badge bg-warning text-dark">In Progress</span>
+                                {% elif report.status == 'resolved' %}
+                                    <span class="badge bg-success">Resolved</span>
+                                {% endif %}
+                            </td>
+                            <td><small>{{ report.date_submitted|date:"d M" }}</small></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All Reports Table -->
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #1a3a2a; color: white;">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i>All Reports</h5>
+        <a href="/worker/" class="btn btn-sm" style="background-color: #f0c040; color: #1a3a2a;">
+            <i class="fas fa-hard-hat me-1"></i>Go to Worker Dashboard
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Tracking #</th>
+                        <th>Category</th>
+                        <th>Location</th>
+                        <th>Ward</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned To</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in all_reports %}
+                    <tr>
+                        <td><strong>{{ report.tracking_number }}</strong></td>
+                        <td>{{ report.get_category_display }}</td>
+                        <td>{{ report.location|truncatechars:25 }}</td>
+                        <td>{{ report.get_ward_display }}</td>
+                        <td>
+                            {% if report.priority == 'high' %}
+                                <span class="badge bg-danger">🔴 High</span>
+                            {% elif report.priority == 'medium' %}
+                                <span class="badge bg-warning text-dark">🟡 Medium</span>
+                            {% else %}
+                                <span class="badge bg-success">🟢 Low</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if report.status == 'received' %}
+                                <span class="badge bg-secondary">Received</span>
+                            {% elif report.status == 'assigned' %}
+                                <span class="badge bg-primary">Assigned</span>
+                            {% elif report.status == 'in_progress' %}
+                                <span class="badge bg-warning text-dark">In Progress</span>
+                            {% elif report.status == 'resolved' %}
+                                <span class="badge bg-success">Resolved</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ report.assigned_to|default:"Unassigned" }}</td>
+                        <td>{{ report.date_submitted|date:"d M Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Category Chart
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ category_labels|safe }},
+            datasets: [{
+                data: {{ category_data|safe }},
+                backgroundColor: ['#0d6efd', '#ffc107', '#dc3545', '#f0c040', '#6f42c1', '#6c757d']
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    // Status Chart
+    new Chart(document.getElementById('statusChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Received', 'Assigned', 'In Progress', 'Resolved'],
+            datasets: [{
+                label: 'Reports',
+                data: {{ status_data|safe }},
+                backgroundColor: ['#6c757d', '#0d6efd', '#ffc107', '#198754']
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    // Ward Chart
+    new Chart(document.getElementById('wardChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Warrenton', 'Ikhutseng', 'Stasie', 'Warrenvale', '14 Streams'],
+
+            datasets: [{
+                label: 'Reports',
+                data: {{ ward_data|safe }},
+                backgroundColor: ['#1a3a2a', '#2d5a3d', '#f0c040']
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+</script>
+{% endblock %}

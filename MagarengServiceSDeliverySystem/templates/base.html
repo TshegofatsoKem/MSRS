@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Magareng Service Request System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+    :root {
+        --msrs-dark-green: #1a3a2a;
+        --msrs-green: #2d5a3d;
+        --msrs-yellow: #f0c040;
+        --msrs-light-yellow: #f5d470;
+        --msrs-red: #e63946;
+        --msrs-light: #f8f9fa;
+    }
+    body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f0; }
+    .navbar { background-color: var(--msrs-dark-green) !important; border-bottom: 3px solid var(--msrs-yellow); padding: 0.3rem 1rem; }
+    .navbar-brand { color: var(--msrs-yellow) !important; font-weight: bold; font-size: 1.2rem; }
+    .nav-link { color: #ffffff !important; font-size: 0.9rem; padding: 0.8rem 0.8rem !important; border-bottom: 3px solid transparent; transition: all 0.2s; }
+    .nav-link:hover { color: var(--msrs-yellow) !important; border-bottom: 3px solid var(--msrs-yellow); }
+    .btn-primary { background-color: var(--msrs-green); border-color: var(--msrs-green); }
+    .btn-primary:hover { background-color: var(--msrs-dark-green); border-color: var(--msrs-yellow); }
+    .footer { background-color: var(--msrs-dark-green); color: white; padding: 25px 0; margin-top: 50px; border-top: 3px solid var(--msrs-yellow); }
+    .card { border-radius: 8px; }
+    .card:hover { transform: translateY(-2px); transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .navbar-logo { height: 42px; width: 42px; object-fit: contain; margin-right: 10px; border: 2px solid var(--msrs-yellow); border-radius: 4px; padding: 2px; background: white; }
+    .table th { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge { font-size: 0.8rem; padding: 0.4em 0.7em; }
+</style>
+
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="{% static 'images/logo.png' %}" alt="Magareng Logo" class="navbar-logo">
+                MSRS Magareng
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/report/"><i class="fas fa-plus-circle me-1"></i>Report Issue</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/status/"><i class="fas fa-search me-1"></i>Track Report</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/worker/"><i class="fas fa-hard-hat me-1"></i>Worker</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard/admin/"><i class="fas fa-chart-bar me-1"></i>Admin Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/"><i class="fas fa-cog me-1"></i>Admin</a></li>
+
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+   <footer class="footer text-center">
+    <div class="container">
+        <img src="{% static 'images/logo.png' %}" alt="Magareng Logo" style="height:40px; margin-bottom:10px;">
+        <p class="mb-1"><strong>Magareng Local Municipality</strong></p>
+        <p class="mb-1">PO Box 10, Magrieta Prinsloo Street, Warrenton, 8530</p>
+        <p class="mb-1">
+            <i class="fas fa-phone me-1"></i>053 497 3111 &nbsp;|&nbsp;
+            <i class="fas fa-fax me-1"></i>053 497 4514
+        </p>
+        <p class="mb-0 mt-2" style="color: #a8c8b4; font-size: 0.85rem;">
+            SMS format: WATER/SEWAGE/ROADS/ELECTRICITY [address] | STATUS [tracking number]
+        </p>
+    </div>
+</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

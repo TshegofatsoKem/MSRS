@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Report Submitted | MSRS{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow text-center">
+            <div class="card-body p-5">
+
+                <!-- Success Icon -->
+                <div class="mb-4">
+                    <i class="fas fa-check-circle fa-5x" style="color: #2d5a3d;"></i>
+                </div>
+
+                <h2 class="fw-bold mb-2">Report Submitted Successfully!</h2>
+                <p class="text-muted mb-4">Repoto e rometse ka katlo | Verslag suksesvol ingedien</p>
+
+                <!-- Tracking Number -->
+                <div class="p-4 rounded mb-4" style="background-color: #f0c040;">
+                    <p class="mb-1 fw-bold">Your Tracking Number / Nomoro ya go latelela:</p>
+                    <h2 class="fw-bold mb-0" style="color: #1a3a2a; letter-spacing: 2px;">
+                        {{ report.tracking_number }}
+                    </h2>
+                </div>
+
+                <div class="alert alert-info text-start">
+                    <i class="fas fa-sms me-2"></i>
+                    <strong>SMS Confirmation:</strong> An SMS with your tracking number will be sent to
+                    <strong>{{ report.resident_phone }}</strong>
+                </div>
+
+                <!-- Report Summary -->
+                <div class="card bg-light text-start mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Report Summary</h5>
+                        <table class="table table-sm mb-0">
+                            <tr>
+                                <th>Category:</th>
+                                <td>{{ report.get_category_display }}</td>
+                            </tr>
+                            <tr>
+                                <th>Location:</th>
+                                <td>{{ report.location }}</td>
+                            </tr>
+                            <tr>
+                                <th>Ward:</th>
+                                <td>{{ report.get_ward_display }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td><span class="badge bg-secondary">Received</span></td>
+                            </tr>
+                            <tr>
+                                <th>Date:</th>
+                                <td>{{ report.date_submitted|date:"d M Y H:i" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <p class="text-muted mb-4">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Save your tracking number to check the status of your report at any time.
+                </p>
+
+                <div class="d-flex gap-3 justify-content-center">
+                    <a href="/status/?tracking={{ report.tracking_number }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Track This Report
+                    </a>
+                    <a href="/" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-home me-2"></i>Back to Home
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

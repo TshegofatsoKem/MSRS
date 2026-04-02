@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}Worker Dashboard | MSRS{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="p-4 rounded-3 mb-4 d-flex justify-content-between align-items-center" 
+     style="background: linear-gradient(135deg, #1a3a2a, #2d5a3d); border-left: 5px solid #f0c040;">
+    <div>
+        <h3 class="fw-bold mb-0 text-white">
+            <i class="fas fa-hard-hat me-2" style="color: #f0c040;"></i>Worker Dashboard
+        </h3>
+        <p class="mb-0 mt-1" style="color: #a8c8b4;">
+            Welcome, <strong style="color: #f0c040;">{{ request.user.get_full_name|default:request.user.username }}</strong> 
+            — Magareng Service Request System
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/dashboard/admin/" class="btn fw-bold" 
+           style="background-color: #f0c040; color: #1a3a2a;">
+            <i class="fas fa-chart-bar me-2"></i>Admin Dashboard
+        </a>
+        <a href="/logout/" class="btn btn-outline-light">
+            <i class="fas fa-sign-out-alt me-2"></i>Logout
+        </a>
+    </div>
+</div>
+
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center border-secondary">
+            <div class="card-body">
+                <h3 class="fw-bold">{{ total_reports }}</h3>
+                <p class="text-muted mb-0">Total Reports</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center border-primary">
+            <div class="card-body">
+                <h3 class="fw-bold text-primary">{{ received_count }}</h3>
+                <p class="text-muted mb-0">New Reports</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center border-warning">
+            <div class="card-body">
+                <h3 class="fw-bold text-warning">{{ in_progress_count }}</h3>
+                <p class="text-muted mb-0">In Progress</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center border-success">
+            <div class="card-body">
+                <h3 class="fw-bold text-success">{{ resolved_count }}</h3>
+                <p class="text-muted mb-0">Resolved</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control"
+                       placeholder="Search tracking # or address"
+                       value="{{ search_query }}">
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="received" {% if status_filter == 'received' %}selected{% endif %}>Received</option>
+                    <option value="assigned" {% if status_filter == 'assigned' %}selected{% endif %}>Assigned</option>
+                    <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>Resolved</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    <option value="water" {% if category_filter == 'water' %}selected{% endif %}>Water</option>
+                    <option value="sewage" {% if category_filter == 'sewage' %}selected{% endif %}>Sewage</option>
+                    <option value="roads" {% if category_filter == 'roads' %}selected{% endif %}>Roads</option>
+                    <option value="electricity" {% if category_filter == 'electricity' %}selected{% endif %}>Electricity</option>
+                    <option value="vandalism" {% if category_filter == 'vandalism' %}selected{% endif %}>Vandalism</option>
+                    <option value="other" {% if category_filter == 'other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="ward" class="form-select">
+                    <option value="">All Wards</option>
+                    <option value="warrenton" {% if ward_filter == 'warrenton' %}selected{% endif %}>Warrenton</option>
+                    <option value="ikhutseng" {% if ward_filter == 'ikhutseng' %}selected{% endif %}>Ikhutseng</option>
+                    <option value="stasie" {% if ward_filter == 'stasie' %}selected{% endif %}>Stasie</option>
+                    <option value="warrenvale" {% if ward_filter == 'warrenvale' %}selected{% endif %}>Warrenvale</option>
+                    <option value="14_streams" {% if ward_filter == '14_streams' %}selected{% endif %}>14 Streams</option>
+</select>
+
+            </div>
+            <div class="col-md-2">
+                <select name="priority" class="form-select">
+                    <option value="">All Priorities</option>
+                    <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>High</option>
+                    <option value="medium" {% if priority_filter == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>Low</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Reports Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #1a3a2a; color: white;">
+        <h5 class="mb-0">Service Reports ({{ reports|length }})</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Tracking #</th>
+                        <th>Category</th>
+                        <th>Location</th>
+                        <th>Ward</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td><strong>{{ report.tracking_number }}</strong></td>
+                        <td>{{ report.get_category_display }}</td>
+                        <td>{{ report.location|truncatechars:30 }}</td>
+                        <td>{{ report.get_ward_display }}</td>
+                        <td>
+                            {% if report.priority == 'high' %}
+                                <span class="badge bg-danger">🔴 High</span>
+                            {% elif report.priority == 'medium' %}
+                                <span class="badge bg-warning text-dark">🟡 Medium</span>
+                            {% else %}
+                                <span class="badge bg-success">🟢 Low</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if report.status == 'received' %}
+                                <span class="badge bg-secondary">Received</span>
+                            {% elif report.status == 'assigned' %}
+                                <span class="badge bg-primary">Assigned</span>
+                            {% elif report.status == 'in_progress' %}
+                                <span class="badge bg-warning text-dark">In Progress</span>
+                            {% elif report.status == 'resolved' %}
+                                <span class="badge bg-success">Resolved</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ report.date_submitted|date:"d M Y" }}</td>
+                        <td>
+                            <a href="/worker/report/{{ report.id }}/" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i> Manage
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p>No reports found matching your filters.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
